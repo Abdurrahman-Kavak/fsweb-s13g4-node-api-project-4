@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
+const kayitOlValidation = require("./middleware/kayitol.js");
 
 const server = express();
 
@@ -9,18 +10,12 @@ server.use(cors());
 
 const users = [];
 
-server.get("/api/kullanıcılar", (req, res) => {
+server.get("/api/kullanicilar", (req, res) => {
   res.status(200).json(users);
 });
 
-server.post("/api/kayıtol", (req, res) => {
+server.post("/api/kayitol", kayitOlValidation, (req, res) => {
   const { kullaniciadi, sifre } = req.body;
-
-  if (!kullaniciadi || !sifre) {
-    return res
-      .status(400)
-      .json({ message: "kullaniciadi ve sifre gereklidir" });
-  }
 
   const hashedPassword = bcrypt.hashSync(sifre, 8);
 
@@ -34,8 +29,14 @@ server.post("/api/kayıtol", (req, res) => {
   res.status(201).json(newUser);
 });
 
-server.post("/api/giriş", (req, res) => {
+server.post("/api/giris", (req, res) => {
   const { kullaniciadi, sifre } = req.body;
+
+  if (!kullaniciadi || !sifre) {
+    return res
+      .status(400)
+      .json({ message: "kullaniciadi ve sifre gereklidir" });
+  }
 
   const user = users.find((u) => u.kullaniciadi === kullaniciadi);
 
